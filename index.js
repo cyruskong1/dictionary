@@ -22,3 +22,7 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/'
+const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
+
+

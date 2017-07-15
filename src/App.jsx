@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 import Header from './components/Header';
 import Message from './components/Message';
 import Search from './components/Search';
 import Definition from  './components/Definition';
-import $ from 'jquery';
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -67,13 +68,25 @@ export default class App extends React.Component {
     this.setState({messageDisplay:false})
   }
 
+  searchDictionary (e) {
+    //make API call to server using axios
+    e.preventDefault();
+    let searchedWord = document.getElementById('searchedWord').value;
+    console.log('searched word:', searchedWord)
+    // const url = 'localhost:3000/search/'+
+    // axios.get(url)
+    //   .then(dictionaryResponse => console.log('success: ', dictionaryResponse))
+    //   .catch(err => console.log('axios error: ', err))
+  }
+
+
   render () {
 
     let defStyle = {
       display: this.state.definitionDisplay ? 'block' : 'none'
     };
     let messStyle = {
-      display: this.state.messageDisplay ? 'block' : 'none'
+      opacity: this.state.messageDisplay ? '1' : '0'
     };
 
 
@@ -81,7 +94,7 @@ export default class App extends React.Component {
       <div>
         <Header date={this.state.date}/>
         <Message style={messStyle} />
-        <Search toggleDefinitionDisplay={this.toggleDefinitionDisplay.bind(this)} toggleMessageDisplay={this.toggleMessageDisplay.bind(this)}/>
+        <Search toggleDefinitionDisplay={this.toggleDefinitionDisplay.bind(this)} toggleMessageDisplay={this.toggleMessageDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
         <Definition style={defStyle} />
       </div>
     )
