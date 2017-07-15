@@ -2,7 +2,7 @@ var webpack = require('webpack');
 //var CompressionPlugin = require('compression-webpack-plugin');
 
 const config = {
-  entry: './App.jsx',
+  entry: __dirname + '/src/App.jsx',
   output: {
     filename: 'bundle.js',
     publicPath: '/public',

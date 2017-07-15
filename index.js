@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var cors = require('cors')
 
-var port = 3000;
+var port = 9000;
 
 app.use(express.static(__dirname + '/'));
 
@@ -15,7 +15,7 @@ app.use(function(req, res, next){
 });
 
 app.listen(port, function(req, res) {
-  console.log('Hi Cy, working on OpenMessage Technical Challenge');
+  console.log('Hi Cy, working on Orderful Technical Challenge on port ' + port);
 });
 
 app.get('/', function (req, res) {
