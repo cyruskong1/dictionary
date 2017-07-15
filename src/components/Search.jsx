@@ -9,7 +9,7 @@ export default (props) => {
           <input type="text" className="form-control" id="searchedWord" placeholder="Search"/>
         </div>
         <div className="form-group">
-          <button type="submit" className="btn btn-default" onClick={(e) =>{ e.preventDefault(); console.log('clicked'); {props.toggleDefinitionDisplay(e)}; {props.searchWord(e)} }}>Look up definition</button>
+          <button type="submit" className="btn btn-default" onClick={(e) =>{ {props.toggleDefinitionDisplay(e)}; {props.searchWord(e)} }}>Look up definition</button>
           <button type="submit" className="btn btn-default" onClick={props.toggleMessageDisplay}>Add to dictionary</button>
         </div>
       </form>

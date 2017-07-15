@@ -13,7 +13,9 @@ export default class App extends React.Component {
     this.state = {
       date: null,
       definitionDisplay: false,
-      messageDisplay: false
+      messageDisplay: false,
+      word: null,
+      definition: null,
     }
   }
 
@@ -32,17 +34,13 @@ export default class App extends React.Component {
     if(dd<10) {
         dd = '0'+dd;
     } 
-
     today = dd + '-' + mm + '-' + yyyy;
     
     if(today) {
-      console.log('date is true', today)
       this.setState({
         date:today
       })
-      console.log('set date')
     }
-    console.log('state date',this.state.date)
   }
 
   toggleDefinitionDisplay (e) {
@@ -69,14 +67,40 @@ export default class App extends React.Component {
   }
 
   searchDictionary (e) {
-    //make API call to server using axios
+    //make API call from client
     e.preventDefault();
+    const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/'
     let searchedWord = document.getElementById('searchedWord').value;
-    console.log('searched word:', searchedWord)
-    // const url = 'localhost:3000/search/'+
-    // axios.get(url)
-    //   .then(dictionaryResponse => console.log('success: ', dictionaryResponse))
-    //   .catch(err => console.log('axios error: ', err))
+    const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
+    let query = url + searchedWord + key
+    axios.get(query)
+      .then(dictionaryResponseXML => {
+        //parse the XML info into an XML file
+        var parser = new DOMParser();
+        let xml = parser.parseFromString(dictionaryResponseXML.data,"text/xml")
+        //grab the word and definition from XML file
+        let word = xml.getElementsByTagName('ew')[0].innerHTML;
+        let definition = xml.getElementsByTagName('def')[0].textContent;
+        console.log('word', word, 'definition', definition.substring(13,this.length));
+        this.setState({
+          word: word,
+          definition:definition
+        })
+        console.log('state after search', this.state)
+      })
+      .catch(err => console.log('axios error: ', err))
+
+    //sending Axios call to server
+    //  axios.get(`localhost:9000/search/${searchedWord}`)
+    //   .then(dictionaryResponse => console.log('dictionary response: ', dictionaryResponse))
+    //   .catch((err) => {
+    //     console.log('axios error: ', err);
+    // });
+
+
+
+
+
   }
 
 
@@ -95,7 +119,7 @@ export default class App extends React.Component {
         <Header date={this.state.date}/>
         <Message style={messStyle} />
         <Search toggleDefinitionDisplay={this.toggleDefinitionDisplay.bind(this)} toggleMessageDisplay={this.toggleMessageDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
-        <Definition style={defStyle} />
+        <Definition style={defStyle} word={this.state.word} definition={this.state.definition} />
       </div>
     )
   }
