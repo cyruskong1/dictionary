@@ -10357,7 +10357,7 @@ exports.default = function (props) {
         ),
         _react2.default.createElement(
           "button",
-          { type: "submit", className: "btn btn-default", onClick: props.toggleMessageDisplay },
+          { type: "submit", className: "btn btn-default", onClick: props.toggleAddDisplay },
           "Add to dictionary"
         )
       )
@@ -11257,6 +11257,10 @@ var _Definition = __webpack_require__(89);
 
 var _Definition2 = _interopRequireDefault(_Definition);
 
+var _AddToDictionary = __webpack_require__(212);
+
+var _AddToDictionary2 = _interopRequireDefault(_AddToDictionary);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -11277,6 +11281,7 @@ var App = function (_React$Component) {
       date: null,
       definitionDisplay: false,
       messageDisplay: false,
+      addDisplay: false,
       word: null,
       definition: null
     };
@@ -11322,8 +11327,8 @@ var App = function (_React$Component) {
         definition: null,
         definitionDisplay: false
       });
-      this.clearField();
-      searchInput.disabled = false;
+      searchInput.value = '';
+      searchInput.readOnly = false;
     }
   }, {
     key: 'toggleMessageDisplay',
@@ -11336,6 +11341,34 @@ var App = function (_React$Component) {
         return;
       }
       this.setState({ messageDisplay: false });
+    }
+  }, {
+    key: 'toggleAddDisplay',
+    value: function toggleAddDisplay(e) {
+      var searchInput = document.getElementById('searchedWord');
+      e.preventDefault();
+      //if the search field is blank and the user wants to add a word to the dictionary, send error
+      if (searchInput.value == '') {
+        alert('FILL the shit out!');
+        return;
+        //else let user add to storage
+      } else {
+        if (!this.state.addDisplay) {
+          this.setState({
+            addDisplay: true
+          });
+          searchInput.readOnly = true;
+          return;
+        } else {
+          this.setState({
+            addDisplay: false
+          });
+          var definitionTextbox = document.getElementById('add-def').value = '';
+          searchInput.readOnly = false;
+          searchInput.value = '';
+        }
+      }
+      this.setState({ addDisplay: false });
     }
   }, {
     key: 'searchDictionary',
@@ -11371,12 +11404,6 @@ var App = function (_React$Component) {
       });
     }
   }, {
-    key: 'clearField',
-    value: function clearField() {
-      var searchInput = document.getElementById('searchedWord');
-      searchInput.value = '';
-    }
-  }, {
     key: 'render',
     value: function render() {
 
@@ -11386,14 +11413,18 @@ var App = function (_React$Component) {
       var messStyle = {
         opacity: this.state.messageDisplay ? '1' : '0'
       };
+      var addStyle = {
+        display: this.state.addDisplay ? 'block' : 'none'
+      };
 
       return _react2.default.createElement(
         'div',
         null,
         _react2.default.createElement(_Header2.default, { date: this.state.date }),
         _react2.default.createElement(_Message2.default, { style: messStyle }),
-        _react2.default.createElement(_Search2.default, { toggleMessageDisplay: this.toggleMessageDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
-        _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition, toggleDefinitionDisplayOff: this.toggleDefinitionDisplayOff.bind(this) })
+        _react2.default.createElement(_Search2.default, { toggleAddDisplay: this.toggleAddDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
+        _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition, toggleDefinitionDisplayOff: this.toggleDefinitionDisplayOff.bind(this) }),
+        _react2.default.createElement(_AddToDictionary2.default, { style: addStyle, toggleAddDisplay: this.toggleAddDisplay.bind(this) })
       );
     }
   }]);
@@ -23885,6 +23916,50 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(21);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (props) {
+  return _react2.default.createElement(
+    "div",
+    { style: props.style, className: "search testborder" },
+    _react2.default.createElement(
+      "div",
+      { className: "form-group" },
+      _react2.default.createElement(
+        "h2",
+        null,
+        "Add to Dictionary"
+      ),
+      _react2.default.createElement("textarea", { className: "form-control", id: "add-def", placeholder: "Enter a pithy definition here" }),
+      _react2.default.createElement(
+        "button",
+        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleAddDisplay },
+        "Cancel"
+      ),
+      _react2.default.createElement(
+        "button",
+        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleDefinitionDisplayOff },
+        "Add"
+      )
+    )
+  );
+};
 
 /***/ })
 /******/ ]);

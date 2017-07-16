@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Message from './components/Message';
 import Search from './components/Search';
 import Definition from  './components/Definition';
+import AddToDictionary from './components/AddToDictionary';
 
 
 export default class App extends React.Component {
@@ -14,6 +15,7 @@ export default class App extends React.Component {
       date: null,
       definitionDisplay: false,
       messageDisplay: false,
+      addDisplay: false,
       word: null,
       definition: null,
     }
@@ -52,8 +54,8 @@ export default class App extends React.Component {
       definition: null,
       definitionDisplay:false
     });
-    this.clearField();
-    searchInput.disabled = false;
+    searchInput.value = '';
+    searchInput.readOnly = false;
   }
 
   toggleMessageDisplay (e) {
@@ -65,6 +67,34 @@ export default class App extends React.Component {
     return
     }
     this.setState({messageDisplay:false})
+  }
+
+  toggleAddDisplay (e) {
+    let searchInput = document.getElementById('searchedWord');
+    e.preventDefault();
+    //if the search field is blank and the user wants to add a word to the dictionary, send error
+    if(searchInput.value == '') {
+      alert('FILL the shit out!');
+      return;
+      //else let user add to storage
+    } else {
+      if(!this.state.addDisplay) { 
+        this.setState({
+          addDisplay: true
+        });
+      searchInput.readOnly = true;
+      return
+    } else {
+      this.setState({
+        addDisplay: false
+      })
+      let definitionTextbox = document.getElementById('add-def').value='';
+      searchInput.readOnly = false;
+      searchInput.value = '';
+    }
+
+    }
+    this.setState({addDisplay:false})
   }
 
   searchDictionary (e) {
@@ -97,11 +127,6 @@ export default class App extends React.Component {
       .catch(err => console.log('search error: ', err))
   }
 
-  clearField () {
-    let searchInput = document.getElementById('searchedWord');
-    searchInput.value = '';
-  }
-
 
   render () {
 
@@ -111,14 +136,18 @@ export default class App extends React.Component {
     let messStyle = {
       opacity: this.state.messageDisplay ? '1' : '0'
     };
+    let addStyle = {
+      display: this.state.addDisplay ? 'block' : 'none'
+    };
 
 
     return (
       <div>
         <Header date={this.state.date}/>
         <Message style={messStyle} />
-        <Search toggleMessageDisplay={this.toggleMessageDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
+        <Search toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
         <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
+        <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} />
       </div>
     )
   }
