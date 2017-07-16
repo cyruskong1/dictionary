@@ -44,10 +44,16 @@ export default class App extends React.Component {
   }
 
   toggleDefinitionDisplayOff (e) {
-    console.log('definitionDisplay', this.state.definitionDisplay)
+    console.log('definitionDisplay', this.state.definitionDisplay);
+    let searchInput = document.getElementById('searchedWord');
     e.preventDefault();
-    this.setState({definitionDisplay:false});
+    this.setState({
+      word: null,
+      definition: null,
+      definitionDisplay:false
+    });
     this.clearField();
+    searchInput.disabled = false;
   }
 
   toggleMessageDisplay (e) {
@@ -64,8 +70,9 @@ export default class App extends React.Component {
   searchDictionary (e) {
     //make API call from client
     e.preventDefault();
-    const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/'
-    let searchedWord = document.getElementById('searchedWord').value;
+    const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
+    let searchInput = document.getElementById('searchedWord');
+    let searchedWord = searchInput.value;
     const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
     let query = url + searchedWord + key
     axios.get(query)
@@ -74,28 +81,25 @@ export default class App extends React.Component {
         var parser = new DOMParser();
         let xml = parser.parseFromString(dictionaryResponseXML.data,"text/xml")
         //grab the word and definition from XML file
+
         let word = xml.getElementsByTagName('ew')[0].innerHTML;
         let definition = xml.getElementsByTagName('def')[0].textContent;
-        console.log('word', word, 'definition', definition.substring(13,this.length));
+        console.log(word + ":" + definition)
         //update the state of the app with new word and definition and display definition
         this.setState({
           word: word,
           definition:definition,
           definitionDisplay:true
         })
-        console.log('state after search', this.state)
+        //while definition is visible set the search field to read only
+        searchInput.readOnly = true;
       })
       .catch(err => console.log('search error: ', err))
   }
 
   clearField () {
-    this.setState({
-      word:null,
-      definition:null
-    })
     let searchInput = document.getElementById('searchedWord');
     searchInput.value = '';
-    console.log('reset');
   }
 
 
