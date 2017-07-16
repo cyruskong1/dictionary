@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import $ from 'jquery';
+import Speech from '../speech';
 import Header from './components/Header';
 import Message from './components/Message';
 import Search from './components/Search';
 import Definition from  './components/Definition';
 import AddToDictionary from './components/AddToDictionary';
+
 
 
 export default class App extends React.Component {
@@ -16,10 +19,16 @@ export default class App extends React.Component {
       definitionDisplay: false,
       messageDisplay: false,
       addDisplay: false,
-      word: null,
-      definition: null,
+      word: '',
+      definition: '',
       userSuccess: null
     }
+  }
+
+  //Look at the state whenever a change occurs
+  componentDidUpdate() {
+    console.log('change detected re-rendering state', this.state, 'localStorage', localStorage)
+
   }
 
   //when the app loads, find the current date
@@ -90,8 +99,10 @@ export default class App extends React.Component {
       //else let user add to storage
     } else {
       //if the app is not displaying add to Dictionary, set display to true and let user move on to add to Dictionary function
+      //set state.word to what user has input
       if(!this.state.addDisplay) { 
         this.setState({
+          word : searchInput.value,
           addDisplay: true
         });
       searchInput.readOnly = true;
@@ -125,7 +136,32 @@ export default class App extends React.Component {
       this.toggleMessageDisplay();
     } else {
       //if the user has input a definition to the textarea
-      this.setState({userSuccess:true});
+      console.log('def to add', definitionTextbox.value)
+      console.log('currentState definition: ', this.state.definition)
+      
+      $.when()
+      .then(
+        this.setState({
+          definition: definitionTextbox.value,
+          userSuccess:true
+        })
+      )
+      //insert axios call here
+      .then(() => {
+        //  axios({
+        //   method: 'post',
+        //   url: '',
+        //   data: {
+        //     word: this.state.word,
+        //     definition: this.state.definition
+        //   }
+        // });
+        console.log('axios call happens now');
+        let dataStore = localStorage;
+        dataStore.setItem(this.state.word, this.state.definition)
+        console.log('current dataStore',dataStore)
+      })
+     
       this.toggleMessageDisplay();
       this.toggleAddDisplay(e);
     }
@@ -140,35 +176,57 @@ export default class App extends React.Component {
     let searchedWord = searchInput.value;
     const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
     let query = url + searchedWord + key
-    axios.get(query)
-      .then(dictionaryResponseXML => {
-        //parse the XML info into an XML file
-        var parser = new DOMParser();
-        let xml = parser.parseFromString(dictionaryResponseXML.data,"text/xml")
-        //grab the word and definition from XML file
+    let dataStore = localStorage;
+    
 
-        let word = xml.getElementsByTagName('ew')[0].innerHTML;
-        let definition = xml.getElementsByTagName('def')[0].textContent;
-        console.log(word + ":" + definition)
-        //update the state of the app with new word and definition and display definition
-        this.setState({
-          word: word,
-          definition:definition,
-          definitionDisplay:true
+    //search localStorage first
+    if(localStorage.getItem(searchedWord)) {
+      $.when()
+        .then(() =>{
+          this.setState({
+            word:searchedWord,
+            definition: localStorage[searchedWord],
+            definitionDisplay:true
+          })
         })
-        //while definition is visible set the search field to read only
-        //user success set to true
-        //display success message
-        console.log('definition found, userSuccess')
-        this.setState({userSuccess:true});
-        this.toggleMessageDisplay();
-        searchInput.readOnly = true;
-      })
-      .catch(err => {
-        console.log('search error: ', err);
-        this.setState({userSuccess:false})
-        this.toggleMessageDisplay();
-      })
+        .then(()=> {
+          this.setState({userSuccess:true});
+          this.toggleMessageDisplay();
+          searchInput.readOnly = true;
+        })
+    }
+    //search API if not in localStorage
+    else {
+      axios.get(query)
+        .then(dictionaryResponseXML => {
+          //parse the XML info into an XML file
+          var parser = new DOMParser();
+          let xml = parser.parseFromString(dictionaryResponseXML.data,"text/xml")
+          //grab the word and definition from XML file
+
+          let word = xml.getElementsByTagName('ew')[0].innerHTML;
+          let definition = xml.getElementsByTagName('def')[0].textContent;
+          console.log(word + ":" + definition)
+          //update the state of the app with new word and definition and display definition
+          this.setState({
+            word: word,
+            definition:definition,
+            definitionDisplay:true
+          })
+          //while definition is visible set the search field to read only
+          //user success set to true
+          //display success message
+          console.log('definition found, userSuccess')
+          this.setState({userSuccess:true});
+          this.toggleMessageDisplay();
+          searchInput.readOnly = true;
+        })
+        .catch(err => {
+          console.log('search error: ', err);
+          this.setState({userSuccess:false})
+          this.toggleMessageDisplay();
+        })
+    }
   }
 
   closeMessage () {
@@ -176,6 +234,12 @@ export default class App extends React.Component {
       messageDisplay:false
     })
     
+  }
+  //currently not rendering Speech to text component
+  speechToText (e) {
+    e.preventDefault();
+    console.log('enabling speech');
+    Speech.start();
   }
 
   render () {
@@ -195,7 +259,7 @@ export default class App extends React.Component {
       <div>
         <Header date={this.state.date}/>
         <Message style={messStyle} userSuccess={this.state.userSuccess} close={this.closeMessage.bind(this)} />
-        <Search toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
+        <Search speech={this.speechToText.bind(this)}toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
         <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
         <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} addToDictionary = {this.addToDictionary.bind(this)} />
       </div>
