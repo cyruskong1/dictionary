@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var cors = require('cors');
-var routes = require('./routing')
 
 var port = 9000;
 

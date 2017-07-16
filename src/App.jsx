@@ -43,16 +43,11 @@ export default class App extends React.Component {
     }
   }
 
-  toggleDefinitionDisplay (e) {
+  toggleDefinitionDisplayOff (e) {
     console.log('definitionDisplay', this.state.definitionDisplay)
     e.preventDefault();
-    if(!this.state.definitionDisplay) { 
-      this.setState({
-        definitionDisplay: true
-      });
-    return
-    }
-    this.setState({definitionDisplay:false})
+    this.setState({definitionDisplay:false});
+    this.clearField();
   }
 
   toggleMessageDisplay (e) {
@@ -82,25 +77,25 @@ export default class App extends React.Component {
         let word = xml.getElementsByTagName('ew')[0].innerHTML;
         let definition = xml.getElementsByTagName('def')[0].textContent;
         console.log('word', word, 'definition', definition.substring(13,this.length));
+        //update the state of the app with new word and definition and display definition
         this.setState({
           word: word,
-          definition:definition
+          definition:definition,
+          definitionDisplay:true
         })
         console.log('state after search', this.state)
       })
-      .catch(err => console.log('axios error: ', err))
+      .catch(err => console.log('search error: ', err))
+  }
 
-    //sending Axios call to server
-    //  axios.get(`localhost:9000/search/${searchedWord}`)
-    //   .then(dictionaryResponse => console.log('dictionary response: ', dictionaryResponse))
-    //   .catch((err) => {
-    //     console.log('axios error: ', err);
-    // });
-
-
-
-
-
+  clearField () {
+    this.setState({
+      word:null,
+      definition:null
+    })
+    let searchInput = document.getElementById('searchedWord');
+    searchInput.value = '';
+    console.log('reset');
   }
 
 
@@ -118,8 +113,8 @@ export default class App extends React.Component {
       <div>
         <Header date={this.state.date}/>
         <Message style={messStyle} />
-        <Search toggleDefinitionDisplay={this.toggleDefinitionDisplay.bind(this)} toggleMessageDisplay={this.toggleMessageDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
-        <Definition style={defStyle} word={this.state.word} definition={this.state.definition} />
+        <Search toggleMessageDisplay={this.toggleMessageDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
+        <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
       </div>
     )
   }

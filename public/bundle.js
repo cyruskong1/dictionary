@@ -10220,16 +10220,21 @@ exports.default = function (props) {
     "div",
     { style: props.style, className: "search testborder" },
     _react2.default.createElement(
-      "h1",
-      null,
-      "Definition"
-    ),
-    _react2.default.createElement(
       "div",
       { className: "form-group" },
       _react2.default.createElement(
+        "h2",
+        null,
+        props.word
+      ),
+      _react2.default.createElement(
+        "p",
+        null,
+        props.definition
+      ),
+      _react2.default.createElement(
         "button",
-        { type: "submit", className: "btn btn-default", id: "clear" },
+        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleDefinitionDisplayOff },
         "Clear & reset"
       )
     )
@@ -10347,13 +10352,7 @@ exports.default = function (props) {
         { className: "form-group" },
         _react2.default.createElement(
           "button",
-          { type: "submit", className: "btn btn-default", onClick: function onClick(e) {
-              {
-                props.toggleDefinitionDisplay(e);
-              };{
-                props.searchWord(e);
-              }
-            } },
+          { type: "submit", className: "btn btn-default", onClick: props.searchWord },
           "Look up definition"
         ),
         _react2.default.createElement(
@@ -11313,17 +11312,12 @@ var App = function (_React$Component) {
       }
     }
   }, {
-    key: 'toggleDefinitionDisplay',
-    value: function toggleDefinitionDisplay(e) {
+    key: 'toggleDefinitionDisplayOff',
+    value: function toggleDefinitionDisplayOff(e) {
       console.log('definitionDisplay', this.state.definitionDisplay);
       e.preventDefault();
-      if (!this.state.definitionDisplay) {
-        this.setState({
-          definitionDisplay: true
-        });
-        return;
-      }
       this.setState({ definitionDisplay: false });
+      this.clearField();
     }
   }, {
     key: 'toggleMessageDisplay',
@@ -11356,22 +11350,27 @@ var App = function (_React$Component) {
         var word = xml.getElementsByTagName('ew')[0].innerHTML;
         var definition = xml.getElementsByTagName('def')[0].textContent;
         console.log('word', word, 'definition', definition.substring(13, _this2.length));
+        //update the state of the app with new word and definition and display definition
         _this2.setState({
           word: word,
-          definition: definition
+          definition: definition,
+          definitionDisplay: true
         });
         console.log('state after search', _this2.state);
       }).catch(function (err) {
-        return console.log('axios error: ', err);
+        return console.log('search error: ', err);
       });
-
-      //sending Axios call to server
-      //  axios.get(`localhost:9000/search/${searchedWord}`)
-      //   .then(dictionaryResponse => console.log('dictionary response: ', dictionaryResponse))
-      //   .catch((err) => {
-      //     console.log('axios error: ', err);
-      // });
-
+    }
+  }, {
+    key: 'clearField',
+    value: function clearField() {
+      this.setState({
+        word: null,
+        definition: null
+      });
+      var searchInput = document.getElementById('searchedWord');
+      searchInput.value = '';
+      console.log('reset');
     }
   }, {
     key: 'render',
@@ -11389,8 +11388,8 @@ var App = function (_React$Component) {
         null,
         _react2.default.createElement(_Header2.default, { date: this.state.date }),
         _react2.default.createElement(_Message2.default, { style: messStyle }),
-        _react2.default.createElement(_Search2.default, { toggleDefinitionDisplay: this.toggleDefinitionDisplay.bind(this), toggleMessageDisplay: this.toggleMessageDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
-        _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition })
+        _react2.default.createElement(_Search2.default, { toggleMessageDisplay: this.toggleMessageDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
+        _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition, toggleDefinitionDisplayOff: this.toggleDefinitionDisplayOff.bind(this) })
       );
     }
   }]);
