@@ -7,7 +7,7 @@ export default (props) => {
         <h2>Add to Dictionary</h2>
         <textarea className="form-control" id="add-def" placeholder="Enter a pithy definition here"></textarea>
         <button type="submit" className="btn btn-default" id="clear" onClick={props.toggleAddDisplay}>Cancel</button>
-        <button type="submit" className="btn btn-default" id="clear" onClick={props.toggleDefinitionDisplayOff}>Add</button>
+        <button type="submit" className="btn btn-default" id="clear" onClick={props.addToDictionary}>Add</button>
       </div>
     </div>
   )

@@ -18,13 +18,10 @@ export default class App extends React.Component {
       addDisplay: false,
       word: null,
       definition: null,
+      userSuccess: null
     }
   }
 
-  handleClick (e) {
-    e.preventDefault();
-    console.log('clicked!')
-  }
   //when the app loads, find the current date
   componentDidMount () {
     let today = new Date();
@@ -58,15 +55,22 @@ export default class App extends React.Component {
     searchInput.readOnly = false;
   }
 
-  toggleMessageDisplay (e) {
-    e.preventDefault();
-    if(!this.state.messageDisplay) { 
-      this.setState({
-        messageDisplay: true
-      });
-    return
+  toggleMessageDisplay () {
+    //if the users action was successful
+    if(this.state.userSuccess === true) {
+      //display message with success styles
+      this.setState({messageDisplay:true})
+      console.log('user success', this.state.userSuccess,'messageDisplay', this.state.messageDisplay)
+      setTimeout(()=> this.setState({messageDisplay:false}), 1500)
+      console.log('display success message', );
+    } 
+
+    if(this.state.userSucess === false) {
+    //if the users action caused an error
+      this.setState({messageDisplay:true})
+      console.log('display error message');
+      //display error message
     }
-    this.setState({messageDisplay:false})
   }
 
   toggleAddDisplay (e) {
@@ -97,6 +101,20 @@ export default class App extends React.Component {
     this.setState({addDisplay:false})
   }
 
+  addToDictionary (e) {
+    e.preventDefault();
+    let definitionTextbox = document.getElementById('add-def');
+    if(definitionTextbox.value == '') {
+      this.setState({userSuccess:false});
+      this.toggleMessageDisplay();
+    } else {
+      this.setState({userSuccess:true});
+      this.toggleMessageDisplay();
+      this.toggleAddDisplay(e);
+    }
+  }
+
+
   searchDictionary (e) {
     //make API call from client
     e.preventDefault();
@@ -122,9 +140,18 @@ export default class App extends React.Component {
           definitionDisplay:true
         })
         //while definition is visible set the search field to read only
+        //user success set to true
+        //display success message
+        console.log('definition found, userSuccess')
+        this.setState({userSuccess:true});
+        this.toggleMessageDisplay();
         searchInput.readOnly = true;
       })
-      .catch(err => console.log('search error: ', err))
+      .catch(err => {
+        console.log('search error: ', err);
+        this.setState({userSuccess:false})
+        this.toggleMessageDisplay();
+      })
   }
 
 
@@ -147,7 +174,7 @@ export default class App extends React.Component {
         <Message style={messStyle} />
         <Search toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
         <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
-        <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} />
+        <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} addToDictionary = {this.addToDictionary.bind(this)}/>
       </div>
     )
   }

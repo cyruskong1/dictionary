@@ -11283,20 +11283,16 @@ var App = function (_React$Component) {
       messageDisplay: false,
       addDisplay: false,
       word: null,
-      definition: null
+      definition: null,
+      userSuccess: null
     };
     return _this;
   }
 
-  _createClass(App, [{
-    key: 'handleClick',
-    value: function handleClick(e) {
-      e.preventDefault();
-      console.log('clicked!');
-    }
-    //when the app loads, find the current date
+  //when the app loads, find the current date
 
-  }, {
+
+  _createClass(App, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
       var today = new Date();
@@ -11332,15 +11328,26 @@ var App = function (_React$Component) {
     }
   }, {
     key: 'toggleMessageDisplay',
-    value: function toggleMessageDisplay(e) {
-      e.preventDefault();
-      if (!this.state.messageDisplay) {
-        this.setState({
-          messageDisplay: true
-        });
-        return;
+    value: function toggleMessageDisplay() {
+      var _this2 = this;
+
+      //if the users action was successful
+      if (this.state.userSuccess === true) {
+        //display message with success styles
+        this.setState({ messageDisplay: true });
+        console.log('user success', this.state.userSuccess, 'messageDisplay', this.state.messageDisplay);
+        setTimeout(function () {
+          return _this2.setState({ messageDisplay: false });
+        }, 1500);
+        console.log('display success message');
       }
-      this.setState({ messageDisplay: false });
+
+      if (this.state.userSucess === false) {
+        //if the users action caused an error
+        this.setState({ messageDisplay: true });
+        console.log('display error message');
+        //display error message
+      }
     }
   }, {
     key: 'toggleAddDisplay',
@@ -11371,9 +11378,23 @@ var App = function (_React$Component) {
       this.setState({ addDisplay: false });
     }
   }, {
+    key: 'addToDictionary',
+    value: function addToDictionary(e) {
+      e.preventDefault();
+      var definitionTextbox = document.getElementById('add-def');
+      if (definitionTextbox.value == '') {
+        this.setState({ userSuccess: false });
+        this.toggleMessageDisplay();
+      } else {
+        this.setState({ userSuccess: true });
+        this.toggleMessageDisplay();
+        this.toggleAddDisplay(e);
+      }
+    }
+  }, {
     key: 'searchDictionary',
     value: function searchDictionary(e) {
-      var _this2 = this;
+      var _this3 = this;
 
       //make API call from client
       e.preventDefault();
@@ -11392,15 +11413,22 @@ var App = function (_React$Component) {
         var definition = xml.getElementsByTagName('def')[0].textContent;
         console.log(word + ":" + definition);
         //update the state of the app with new word and definition and display definition
-        _this2.setState({
+        _this3.setState({
           word: word,
           definition: definition,
           definitionDisplay: true
         });
         //while definition is visible set the search field to read only
+        //user success set to true
+        //display success message
+        console.log('definition found, userSuccess');
+        _this3.setState({ userSuccess: true });
+        _this3.toggleMessageDisplay();
         searchInput.readOnly = true;
       }).catch(function (err) {
-        return console.log('search error: ', err);
+        console.log('search error: ', err);
+        _this3.setState({ userSuccess: false });
+        _this3.toggleMessageDisplay();
       });
     }
   }, {
@@ -11424,7 +11452,7 @@ var App = function (_React$Component) {
         _react2.default.createElement(_Message2.default, { style: messStyle }),
         _react2.default.createElement(_Search2.default, { toggleAddDisplay: this.toggleAddDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
         _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition, toggleDefinitionDisplayOff: this.toggleDefinitionDisplayOff.bind(this) }),
-        _react2.default.createElement(_AddToDictionary2.default, { style: addStyle, toggleAddDisplay: this.toggleAddDisplay.bind(this) })
+        _react2.default.createElement(_AddToDictionary2.default, { style: addStyle, toggleAddDisplay: this.toggleAddDisplay.bind(this), addToDictionary: this.addToDictionary.bind(this) })
       );
     }
   }]);
@@ -23954,7 +23982,7 @@ exports.default = function (props) {
       ),
       _react2.default.createElement(
         "button",
-        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleDefinitionDisplayOff },
+        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.addToDictionary },
         "Add"
       )
     )
