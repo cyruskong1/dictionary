@@ -10218,7 +10218,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = function (props) {
   return _react2.default.createElement(
     "div",
-    { style: props.style, className: "search testborder" },
+    { style: props.style, className: "search border" },
     _react2.default.createElement(
       "div",
       { className: "form-group" },
@@ -10264,20 +10264,20 @@ exports.default = function (props) {
     null,
     _react2.default.createElement(
       "nav",
-      { className: "navbar fixed-top navbar-inverse bg-inverse" },
+      { className: "navbar fixed-top navbar-inverse bg-inverse row" },
       _react2.default.createElement(
         "a",
-        { className: "navbar-brand white", href: "#" },
+        { className: "navbar-brand white col-md-4 col-lg-4", href: "#" },
         "Better than Dictionary.com"
       ),
       _react2.default.createElement(
         "p",
-        { className: "navbar-brand white" },
+        { className: "navbar-brand white col-md-4 col-lg-4" },
         props.date
       ),
       _react2.default.createElement(
         "p",
-        { className: "navbar-brand white" },
+        { className: "navbar-brand white col-md-4 col-lg-4" },
         "A project by Cy Kong"
       )
     )
@@ -10305,7 +10305,7 @@ exports.default = function (props) {
   if (props.userSuccess === true) {
     return _react2.default.createElement(
       "div",
-      { style: props.style, className: "search container testborder" },
+      { style: props.style, className: "search container border-sucess" },
       _react2.default.createElement(
         "button",
         { type: "button", className: "close", onClick: props.close, "aria-label": "Close" },
@@ -10316,15 +10316,15 @@ exports.default = function (props) {
         )
       ),
       _react2.default.createElement(
-        "h1",
+        "h2",
         null,
-        " Success Message "
+        props.message
       )
     );
   } else {
     return _react2.default.createElement(
       "div",
-      { style: props.style, className: "search container testborder" },
+      { style: props.style, className: "search container border-error" },
       _react2.default.createElement(
         "button",
         { type: "button", className: "close", onClick: props.close, "aria-label": "Close" },
@@ -10335,9 +10335,9 @@ exports.default = function (props) {
         )
       ),
       _react2.default.createElement(
-        "h1",
+        "h2",
         null,
-        " Error Message "
+        props.message
       )
     );
   }
@@ -11322,7 +11322,8 @@ var App = function (_React$Component) {
       addDisplay: false,
       word: '',
       definition: '',
-      userSuccess: null
+      userSuccess: null,
+      messageToDisplay: ''
     };
     return _this;
   }
@@ -11413,12 +11414,27 @@ var App = function (_React$Component) {
       //if the search field is blank and the user wants to add a word to the dictionary, send error
       if (searchInput.value == '') {
         this.setState({
-          userSuccess: false
+          userSuccess: false,
+          messageToDisplay: 'Please enter a word.'
         });
         this.toggleMessageDisplay();
         return;
         //else let user add to storage
       } else {
+        //if the user tries to add a word that is already in the dictionary
+        //setState
+        //userSuccess : false
+        //display message: true 
+        //return
+
+        if (localStorage[searchInput.value]) {
+          this.setState({
+            userSuccess: false,
+            messageDisplay: true,
+            messageToDisplay: 'Word is already in the Dictionary'
+          });
+          return;
+        }
         //if the app is not displaying add to Dictionary, set display to true and let user move on to add to Dictionary function
         //set state.word to what user has input
         if (!this.state.addDisplay) {
@@ -11455,7 +11471,8 @@ var App = function (_React$Component) {
       if (definitionTextbox.value == '') {
         console.log('null', this.state.userSuccess);
         this.setState({
-          userSuccess: false
+          userSuccess: false,
+          messageToDisplay: 'Please enter a definition.'
         });
         console.log('add to dictionary error user state', this.state.userSuccess);
         this.toggleMessageDisplay();
@@ -11466,18 +11483,9 @@ var App = function (_React$Component) {
 
         _jquery2.default.when().then(this.setState({
           definition: definitionTextbox.value,
-          userSuccess: true
-        }))
-        //insert axios call here
-        .then(function () {
-          //  axios({
-          //   method: 'post',
-          //   url: '',
-          //   data: {
-          //     word: this.state.word,
-          //     definition: this.state.definition
-          //   }
-          // });
+          userSuccess: true,
+          messageToDisplay: 'Successfully added to the dictionary'
+        })).then(function () {
           console.log('axios call happens now');
           var dataStore = localStorage;
           dataStore.setItem(_this3.state.word, _this3.state.definition);
@@ -11514,7 +11522,10 @@ var App = function (_React$Component) {
             definitionDisplay: true
           });
         }).then(function () {
-          _this4.setState({ userSuccess: true });
+          _this4.setState({
+            userSuccess: true,
+            messageToDisplay: 'Word search successful!'
+          });
           _this4.toggleMessageDisplay();
           searchInput.readOnly = true;
         });
@@ -11540,12 +11551,18 @@ var App = function (_React$Component) {
             //user success set to true
             //display success message
             console.log('definition found, userSuccess');
-            _this4.setState({ userSuccess: true });
+            _this4.setState({
+              userSuccess: true,
+              messageToDisplay: 'Word search successful!'
+            });
             _this4.toggleMessageDisplay();
             searchInput.readOnly = true;
           }).catch(function (err) {
             console.log('search error: ', err);
-            _this4.setState({ userSuccess: false });
+            _this4.setState({
+              userSuccess: false,
+              messageToDisplay: 'Search error. Please try again.'
+            });
             _this4.toggleMessageDisplay();
           });
         }
@@ -11584,7 +11601,7 @@ var App = function (_React$Component) {
         'div',
         null,
         _react2.default.createElement(_Header2.default, { date: this.state.date }),
-        _react2.default.createElement(_Message2.default, { style: messStyle, userSuccess: this.state.userSuccess, close: this.closeMessage.bind(this) }),
+        _react2.default.createElement(_Message2.default, { message: this.state.messageToDisplay, style: messStyle, userSuccess: this.state.userSuccess, close: this.closeMessage.bind(this) }),
         _react2.default.createElement(_Search2.default, { speech: this.speechToText.bind(this), toggleAddDisplay: this.toggleAddDisplay.bind(this), searchWord: this.searchDictionary.bind(this) }),
         _react2.default.createElement(_Definition2.default, { style: defStyle, word: this.state.word, definition: this.state.definition, toggleDefinitionDisplayOff: this.toggleDefinitionDisplayOff.bind(this) }),
         _react2.default.createElement(_AddToDictionary2.default, { style: addStyle, toggleAddDisplay: this.toggleAddDisplay.bind(this), addToDictionary: this.addToDictionary.bind(this) })

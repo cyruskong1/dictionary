@@ -2,7 +2,7 @@ import React from 'react';
 
 export default (props) => {
   return (
-    <div style={props.style} className = "search testborder">
+    <div style={props.style} className = "search border">
       <div className="form-group">
         <h2>{props.word}</h2>
         <p>{props.definition}</p>

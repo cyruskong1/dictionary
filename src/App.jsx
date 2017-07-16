@@ -21,7 +21,8 @@ export default class App extends React.Component {
       addDisplay: false,
       word: '',
       definition: '',
-      userSuccess: null
+      userSuccess: null,
+      messageToDisplay:''
     }
   }
 
@@ -92,12 +93,27 @@ export default class App extends React.Component {
     //if the search field is blank and the user wants to add a word to the dictionary, send error
     if(searchInput.value == '') {
       this.setState({
-        userSuccess: false
+        userSuccess: false,
+        messageToDisplay: 'Please enter a word.'
       });
       this.toggleMessageDisplay();
       return;
       //else let user add to storage
     } else {
+      //if the user tries to add a word that is already in the dictionary
+      //setState
+       //userSuccess : false
+       //display message: true 
+       //return
+
+      if(localStorage[searchInput.value]) {
+        this.setState({
+          userSuccess:false,
+          messageDisplay:true,
+          messageToDisplay:'Word is already in the Dictionary'
+        })
+        return
+      }
       //if the app is not displaying add to Dictionary, set display to true and let user move on to add to Dictionary function
       //set state.word to what user has input
       if(!this.state.addDisplay) { 
@@ -131,6 +147,7 @@ export default class App extends React.Component {
       console.log('null', this.state.userSuccess)
       this.setState({
         userSuccess: false,
+        messageToDisplay: 'Please enter a definition.'
       })
       console.log('add to dictionary error user state', this.state.userSuccess)
       this.toggleMessageDisplay();
@@ -143,19 +160,11 @@ export default class App extends React.Component {
       .then(
         this.setState({
           definition: definitionTextbox.value,
-          userSuccess:true
+          userSuccess:true,
+          messageToDisplay:'Successfully added to the dictionary'
         })
       )
-      //insert axios call here
       .then(() => {
-        //  axios({
-        //   method: 'post',
-        //   url: '',
-        //   data: {
-        //     word: this.state.word,
-        //     definition: this.state.definition
-        //   }
-        // });
         console.log('axios call happens now');
         let dataStore = localStorage;
         dataStore.setItem(this.state.word, this.state.definition)
@@ -190,7 +199,10 @@ export default class App extends React.Component {
           })
         })
         .then(()=> {
-          this.setState({userSuccess:true});
+          this.setState({
+            userSuccess:true,
+            messageToDisplay: 'Word search successful!'
+          });
           this.toggleMessageDisplay();
           searchInput.readOnly = true;
         })
@@ -217,13 +229,19 @@ export default class App extends React.Component {
           //user success set to true
           //display success message
           console.log('definition found, userSuccess')
-          this.setState({userSuccess:true});
+          this.setState({
+            userSuccess: true,
+            messageToDisplay: 'Word search successful!'
+          });
           this.toggleMessageDisplay();
           searchInput.readOnly = true;
         })
         .catch(err => {
           console.log('search error: ', err);
-          this.setState({userSuccess:false})
+          this.setState({
+            userSuccess:false,
+            messageToDisplay: 'Search error. Please try again.'
+          })
           this.toggleMessageDisplay();
         })
     }
@@ -258,7 +276,7 @@ export default class App extends React.Component {
     return (
       <div>
         <Header date={this.state.date}/>
-        <Message style={messStyle} userSuccess={this.state.userSuccess} close={this.closeMessage.bind(this)} />
+        <Message message={this.state.messageToDisplay} style={messStyle} userSuccess={this.state.userSuccess} close={this.closeMessage.bind(this)} />
         <Search speech={this.speechToText.bind(this)}toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
         <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
         <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} addToDictionary = {this.addToDictionary.bind(this)} />
