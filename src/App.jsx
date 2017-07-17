@@ -59,7 +59,7 @@ export default class App extends React.Component {
     e.preventDefault();
     const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
     let searchInput = document.getElementById('searchedWord');
-    let searchedWord = searchInput.value;
+    let searchedWord = searchInput.value.toLowerCase();
     const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
     let query = url + searchedWord + key
     let dataStore = localStorage;
@@ -134,6 +134,7 @@ export default class App extends React.Component {
     e.preventDefault();
     let searchInput = document.getElementById('searchedWord');
     let definitionTextbox = document.getElementById('add-def');
+    let addButton = document.getElementById('add-to-dic');
     //if the user tries to add a word to the dictionary with no definition, display error message
     if(definitionTextbox.value == '') {
       console.log('null', this.state.userSuccess)
@@ -183,6 +184,7 @@ export default class App extends React.Component {
         this.toggleMessageDisplay();
         this.setState({addDisplay:false})
         searchInput.value = '';
+        definitionTextbox.value = '';
         searchInput.readOnly = false;
         addButton.disabled = false;
       })

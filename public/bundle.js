@@ -11370,7 +11370,7 @@ var App = function (_React$Component) {
       e.preventDefault();
       var url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
       var searchInput = document.getElementById('searchedWord');
-      var searchedWord = searchInput.value;
+      var searchedWord = searchInput.value.toLowerCase();
       var key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
       var query = url + searchedWord + key;
       var dataStore = localStorage;
@@ -11445,6 +11445,7 @@ var App = function (_React$Component) {
       e.preventDefault();
       var searchInput = document.getElementById('searchedWord');
       var definitionTextbox = document.getElementById('add-def');
+      var addButton = document.getElementById('add-to-dic');
       //if the user tries to add a word to the dictionary with no definition, display error message
       if (definitionTextbox.value == '') {
         console.log('null', this.state.userSuccess);
@@ -11489,6 +11490,7 @@ var App = function (_React$Component) {
           _this3.toggleMessageDisplay();
           _this3.setState({ addDisplay: false });
           searchInput.value = '';
+          definitionTextbox.value = '';
           searchInput.readOnly = false;
           addButton.disabled = false;
         });
