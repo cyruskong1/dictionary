@@ -10,7 +10,7 @@ export default (props) => {
         </div>
         <div className="form-group">
           <button type="submit" className="btn btn-default" onClick={props.searchWord}>Look up definition</button>
-          <button type="submit" className="btn btn-default" onClick={props.toggleAddDisplay}>Add to dictionary</button>
+          <button type="submit" className="btn btn-default" id="add-to-dic" onClick={props.toggleAddDisplay}>Add to dictionary</button>
         </div>
       </form>
     </div>

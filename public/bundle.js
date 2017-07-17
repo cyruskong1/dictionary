@@ -10387,7 +10387,7 @@ exports.default = function (props) {
         ),
         _react2.default.createElement(
           "button",
-          { type: "submit", className: "btn btn-default", onClick: props.toggleAddDisplay },
+          { type: "submit", className: "btn btn-default", id: "add-to-dic", onClick: props.toggleAddDisplay },
           "Add to dictionary"
         )
       )
@@ -11328,8 +11328,7 @@ var App = function (_React$Component) {
     return _this;
   }
 
-  //Look at the state whenever a change occurs
-
+  //**************  Get Updates for changes in state of App **************
 
   _createClass(App, [{
     key: 'componentDidUpdate',
@@ -11360,103 +11359,81 @@ var App = function (_React$Component) {
       }
     }
 
-    //after successful definition retrieval this will turn off definition box
+    //************** Search Dictionary **************
 
   }, {
-    key: 'toggleDefinitionDisplayOff',
-    value: function toggleDefinitionDisplayOff(e) {
-      var searchInput = document.getElementById('searchedWord');
-      var definitionTextbox = document.getElementById('add-def');
-      e.preventDefault();
-      this.setState({
-        word: null,
-        definition: null,
-        definitionDisplay: false
-      });
-      searchInput.value = '';
-      searchInput.readOnly = false;
-    }
-
-    //toggle success or error message based on userSuccess in app state
-
-  }, {
-    key: 'toggleMessageDisplay',
-    value: function toggleMessageDisplay() {
+    key: 'searchDictionary',
+    value: function searchDictionary(e) {
       var _this2 = this;
 
-      //if the users action was successful
-      if (this.state.userSuccess === true) {
-        //display message with success styles
-        this.setState({ messageDisplay: true });
-        console.log('user success', this.state.userSuccess, 'messageDisplay', this.state.messageDisplay);
-        setTimeout(function () {
-          return _this2.setState({ messageDisplay: false });
-        }, 1500);
-        console.log('display success message');
-      }
-
-      if (this.state.userSuccess === false) {
-        //if the users action caused an error
-        this.setState({ messageDisplay: true });
-        console.log('display error message');
-        //display error message
-      }
-    }
-
-    //toggle display on and off for adding words to dictionary this is one step before actually adding to the dictionary
-    //user must have a word to put in the dictionary
-
-  }, {
-    key: 'toggleAddDisplay',
-    value: function toggleAddDisplay(e) {
-      var searchInput = document.getElementById('searchedWord');
+      //make API call from client
       e.preventDefault();
-      //if the search field is blank and the user wants to add a word to the dictionary, send error
-      if (searchInput.value == '') {
-        this.setState({
-          userSuccess: false,
-          messageToDisplay: 'Please enter a word.'
-        });
-        this.toggleMessageDisplay();
-        return;
-        //else let user add to storage
-      } else {
-        //if the user tries to add a word that is already in the dictionary
-        //setState
-        //userSuccess : false
-        //display message: true 
-        //return
+      var url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
+      var searchInput = document.getElementById('searchedWord');
+      var searchedWord = searchInput.value;
+      var key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
+      var query = url + searchedWord + key;
+      var dataStore = localStorage;
 
-        if (localStorage[searchInput.value]) {
-          this.setState({
-            userSuccess: false,
-            messageDisplay: true,
-            messageToDisplay: 'Word is already in the Dictionary'
+      //search localStorage first
+      if (localStorage.getItem(searchedWord)) {
+        _jquery2.default.when().then(function () {
+          _this2.setState({
+            word: searchedWord,
+            definition: localStorage[searchedWord],
+            definitionDisplay: true
           });
-          return;
-        }
-        //if the app is not displaying add to Dictionary, set display to true and let user move on to add to Dictionary function
-        //set state.word to what user has input
-        if (!this.state.addDisplay) {
-          this.setState({
-            word: searchInput.value,
-            addDisplay: true
+        }).then(function () {
+          _this2.setState({
+            userSuccess: true,
+            messageToDisplay: 'Word search successful!'
           });
+          _this2.toggleMessageDisplay();
           searchInput.readOnly = true;
-          return;
-        } else {
-          //for general toggling display, if it's open and the user wants to cancel or if the user has successfully added to the dictionary and wants to close 
-          //empty form and go back to step 1
-          this.setState({
-            addDisplay: false
-          });
-          var definitionTextbox = document.getElementById('add-def').value = '';
-          searchInput.readOnly = false;
-          searchInput.value = '';
-        }
+          document.getElementById('add-to-dic').disabled = true;
+        });
       }
-      this.setState({ addDisplay: false });
+      //search API if not in localStorage
+      else {
+          _axios2.default.get(query).then(function (dictionaryResponseXML) {
+            //parse the XML info into an XML file
+            var parser = new DOMParser();
+            var xml = parser.parseFromString(dictionaryResponseXML.data, "text/xml");
+            //grab the word and definition from XML file
+
+            var word = xml.getElementsByTagName('ew')[0].innerHTML;
+            var definition = xml.getElementsByTagName('def')[0].textContent;
+            console.log(word + ":" + definition);
+            //update the state of the app with new word and definition and display definition
+            _this2.setState({
+              word: word,
+              definition: definition,
+              definitionDisplay: true
+            });
+            //while definition is visible set the search field to read only
+            //user success set to true
+            //disable add to dictionary button
+            //display success message
+            console.log('definition found, userSuccess');
+            _this2.setState({
+              userSuccess: true,
+              messageToDisplay: 'Word search successful!'
+            });
+            _this2.toggleMessageDisplay();
+            searchInput.readOnly = true;
+            document.getElementById('add-to-dic').disabled = true;
+          }).catch(function (err) {
+            console.log('search error: ', err);
+            _this2.setState({
+              userSuccess: false,
+              messageToDisplay: 'Search error. Please try again.'
+            });
+            _this2.toggleMessageDisplay();
+          });
+        }
     }
+
+    //************** Adding to Dictionary **************
 
     //controller to add to dictionary JSON store
 
@@ -11497,75 +11474,101 @@ var App = function (_React$Component) {
       }
     }
 
-    //search dictionary.com 
+    //************** Toggle Displays **************
+
+    //after successful definition retrieval this will turn off definition box
 
   }, {
-    key: 'searchDictionary',
-    value: function searchDictionary(e) {
+    key: 'toggleDefinitionDisplayOff',
+    value: function toggleDefinitionDisplayOff(e) {
+      var searchInput = document.getElementById('searchedWord');
+      var definitionTextbox = document.getElementById('add-def');
+      var addButton = document.getElementById('add-to-dic');
+      e.preventDefault();
+      this.setState({
+        word: null,
+        definition: null,
+        definitionDisplay: false
+      });
+      searchInput.value = '';
+      searchInput.readOnly = false;
+      addButton.disabled = false;
+    }
+
+    //toggle success or error message based on userSuccess in app state
+
+  }, {
+    key: 'toggleMessageDisplay',
+    value: function toggleMessageDisplay() {
       var _this4 = this;
 
-      //make API call from client
-      e.preventDefault();
-      var url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
-      var searchInput = document.getElementById('searchedWord');
-      var searchedWord = searchInput.value;
-      var key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
-      var query = url + searchedWord + key;
-      var dataStore = localStorage;
-
-      //search localStorage first
-      if (localStorage.getItem(searchedWord)) {
-        _jquery2.default.when().then(function () {
-          _this4.setState({
-            word: searchedWord,
-            definition: localStorage[searchedWord],
-            definitionDisplay: true
-          });
-        }).then(function () {
-          _this4.setState({
-            userSuccess: true,
-            messageToDisplay: 'Word search successful!'
-          });
-          _this4.toggleMessageDisplay();
-          searchInput.readOnly = true;
-        });
+      //if the users action was successful
+      if (this.state.userSuccess === true) {
+        //display message with success styles
+        this.setState({ messageDisplay: true });
+        console.log('user success', this.state.userSuccess, 'messageDisplay', this.state.messageDisplay);
+        setTimeout(function () {
+          return _this4.setState({ messageDisplay: false });
+        }, 1500);
+        console.log('display success message');
       }
-      //search API if not in localStorage
-      else {
-          _axios2.default.get(query).then(function (dictionaryResponseXML) {
-            //parse the XML info into an XML file
-            var parser = new DOMParser();
-            var xml = parser.parseFromString(dictionaryResponseXML.data, "text/xml");
-            //grab the word and definition from XML file
 
-            var word = xml.getElementsByTagName('ew')[0].innerHTML;
-            var definition = xml.getElementsByTagName('def')[0].textContent;
-            console.log(word + ":" + definition);
-            //update the state of the app with new word and definition and display definition
-            _this4.setState({
-              word: word,
-              definition: definition,
-              definitionDisplay: true
-            });
-            //while definition is visible set the search field to read only
-            //user success set to true
-            //display success message
-            console.log('definition found, userSuccess');
-            _this4.setState({
-              userSuccess: true,
-              messageToDisplay: 'Word search successful!'
-            });
-            _this4.toggleMessageDisplay();
-            searchInput.readOnly = true;
-          }).catch(function (err) {
-            console.log('search error: ', err);
-            _this4.setState({
-              userSuccess: false,
-              messageToDisplay: 'Search error. Please try again.'
-            });
-            _this4.toggleMessageDisplay();
+      if (this.state.userSuccess === false) {
+        //if the users action caused an error
+        this.setState({ messageDisplay: true });
+        console.log('display error message');
+        //display error message
+      }
+    }
+
+    //toggle display on and off for adding words to dictionary this is one step before actually adding to the dictionary
+    //user must have a word to put in the dictionary
+
+  }, {
+    key: 'toggleAddDisplay',
+    value: function toggleAddDisplay(e) {
+      var searchInput = document.getElementById('searchedWord');
+      e.preventDefault();
+      //if the search field is blank and the user wants to add a word to the dictionary, send error
+      if (searchInput.value == '') {
+        this.setState({
+          userSuccess: false,
+          messageToDisplay: 'Please enter a word.'
+        });
+        this.toggleMessageDisplay();
+        return;
+        //else let user add to storage
+      } else {
+        //if the user tries to add a word that is already in the dictionary return error message
+        if (localStorage[searchInput.value]) {
+          this.setState({
+            userSuccess: false,
+            messageDisplay: true,
+            messageToDisplay: 'Word is already in the Dictionary'
           });
+          return;
         }
+        //if the app is not displaying add to Dictionary, set display to true and let user move on to add to Dictionary function
+        //set state.word to what user has input
+        if (!this.state.addDisplay) {
+          this.setState({
+            word: searchInput.value,
+            addDisplay: true
+          });
+          searchInput.readOnly = true;
+          return;
+        } else {
+          //for general toggling display, if it's open and the user wants to cancel or if the user has successfully added to the dictionary and wants to close 
+          //empty form and go back to step 1
+          this.setState({
+            addDisplay: false
+          });
+          var definitionTextbox = document.getElementById('add-def').value = '';
+          searchInput.readOnly = false;
+          searchInput.value = '';
+        }
+      }
+      this.setState({ addDisplay: false });
     }
   }, {
     key: 'closeMessage',
