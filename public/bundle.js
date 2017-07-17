@@ -11443,6 +11443,7 @@ var App = function (_React$Component) {
       var _this3 = this;
 
       e.preventDefault();
+      var searchInput = document.getElementById('searchedWord');
       var definitionTextbox = document.getElementById('add-def');
       //if the user tries to add a word to the dictionary with no definition, display error message
       if (definitionTextbox.value == '') {
@@ -11463,14 +11464,34 @@ var App = function (_React$Component) {
           userSuccess: true,
           messageToDisplay: 'Successfully added to the dictionary'
         })).then(function () {
-          console.log('axios call happens now');
+          //********** Plan A Write to datastore.json ************
+          //Uncomment this code to demo Node error
+
+          // console.log('axios call happens now');
+          // axios.post('/', {
+          //   word: this.state.word,
+          //   definition: this.state.definition
+          // })
+          // .then(function (response) {
+          //   console.log('axios post success',response);
+          //   searchInput.value = '';
+          // })
+          // .catch(function (error) {
+          //   console.log('axios post error',error);
+          // });
+          //})
+
+          //********** Plan B Write to localStorage ************
           var dataStore = localStorage;
           dataStore.setItem(_this3.state.word, _this3.state.definition);
           console.log('current dataStore', dataStore);
+        }).then(function () {
+          _this3.toggleMessageDisplay();
+          _this3.setState({ addDisplay: false });
+          searchInput.value = '';
+          searchInput.readOnly = false;
+          addButton.disabled = false;
         });
-
-        this.toggleMessageDisplay();
-        this.toggleAddDisplay(e);
       }
     }
 
@@ -11528,9 +11549,10 @@ var App = function (_React$Component) {
     key: 'toggleAddDisplay',
     value: function toggleAddDisplay(e) {
       var searchInput = document.getElementById('searchedWord');
+      var searchInputValue = searchInput.value.toLowerCase();
       e.preventDefault();
       //if the search field is blank and the user wants to add a word to the dictionary, send error
-      if (searchInput.value == '') {
+      if (searchInputValue == '') {
         this.setState({
           userSuccess: false,
           messageToDisplay: 'Please enter a word.'
@@ -11540,7 +11562,7 @@ var App = function (_React$Component) {
         //else let user add to storage
       } else {
         //if the user tries to add a word that is already in the dictionary return error message
-        if (localStorage[searchInput.value]) {
+        if (localStorage[searchInputValue]) {
           this.setState({
             userSuccess: false,
             messageDisplay: true,
@@ -11552,7 +11574,7 @@ var App = function (_React$Component) {
         //set state.word to what user has input
         if (!this.state.addDisplay) {
           this.setState({
-            word: searchInput.value,
+            word: searchInputValue,
             addDisplay: true
           });
           searchInput.readOnly = true;
@@ -11565,7 +11587,7 @@ var App = function (_React$Component) {
           });
           var definitionTextbox = document.getElementById('add-def').value = '';
           searchInput.readOnly = false;
-          searchInput.value = '';
+          searchInputValue = '';
         }
       }
       this.setState({ addDisplay: false });
