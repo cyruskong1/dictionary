@@ -14,8 +14,13 @@ $ npm install
 ```
 $npm run build
 ```
-4 - Start Express server using
+4 - Open a new terminal tab and start server using
 ```
 $nodemon index.js
+```
+if you receive an error, you can start the server with node
+
+```
+$node index.js
 ```
 5 - In the browser, navigate to localhost:9000

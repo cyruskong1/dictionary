@@ -10236,6 +10236,11 @@ exports.default = function (props) {
         "button",
         { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleDefinitionDisplayOff },
         "Clear & reset"
+      ),
+      _react2.default.createElement(
+        "button",
+        { type: "submit", className: "btn btn-default", id: "clear", onClick: props.toggleDefinitionDisplayOff },
+        "Show me a picture"
       )
     )
   );

@@ -7,6 +7,7 @@ export default (props) => {
         <h2>{props.word}</h2>
         <p>{props.definition}</p>
         <button type="submit" className="btn btn-default" id="clear" onClick={props.toggleDefinitionDisplayOff}>Clear & reset</button>
+        <button type="submit" className="btn btn-default" id="clear" onClick={props.toggleDefinitionDisplayOff}>Show me a picture</button>
       </div>
     </div>
   )
