@@ -16,6 +16,22 @@ app.use(express.static(__dirname + '/'));
 //use the bodyParser middleware to parse the request body and place the result in request.body of your route
 app.use(jsonParser);
 
+//************** For Production **************
+/*
+
+Allowing CORs will allow different origins to use this API 
+*/
+ //************** For Future Refactor **************
+  /* 
+  Use Callbacks instead of promises ex. put readFile in a Callback
+  use Async calls instead of sync calls
+  To optimize server
+  //When the server starts - read the dataStore and save into memory in server
+  //Search the in memory store and periodically write to the dataStore via setTmeout
+  Numblocking.io
+  */
+ //*************************************************
+
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -63,3 +79,5 @@ app.post('/', jsonParser, (req, res) => {
     console.log('reading file', obj)
   })
 })
+
+
