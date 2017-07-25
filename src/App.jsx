@@ -22,7 +22,7 @@ export default class App extends React.Component {
       word: '',
       definition: '',
       userSuccess: null,
-      messageToDisplay:''
+      messageToDisplay:'' 
     }
   }
 
@@ -56,6 +56,11 @@ export default class App extends React.Component {
 
   searchDictionary (e) {
     //make API call from client
+    //************** For Future Refactor **************
+    /*
+    Store API key in a secret file that the server will require as an ENV variable
+    Save DOM elements in state -- do no access via document.getElementById
+    *****************************/
     e.preventDefault();
     const url = 'http://www.dictionaryapi.com/api/v1/references/collegiate/xml/';
     let searchInput = document.getElementById('searchedWord');
@@ -63,9 +68,22 @@ export default class App extends React.Component {
     const key = '?key=3d6528c8-1f2a-4a3d-b31b-aaac711c4efd';
     let query = url + searchedWord + key
     let dataStore = localStorage;
-    
 
     //search localStorage first
+    //************** For Future Refactor **************
+    /*
+    Send Axios call for GET and POST to server end point
+    Server will send request to API ex.
+    axios.get('/search', thingToPost
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    //then most of the functionality here will move to the server
+    *****************************/
     if(localStorage.getItem(searchedWord)) {
       $.when()
         .then(() =>{
@@ -86,6 +104,11 @@ export default class App extends React.Component {
         })
     }
     //search API if not in localStorage
+    //************** For Future Refactor **************
+    /*
+    //most of the functionality here will move to the server
+    *****************************/
+
     else {
       axios.get(query)
         .then(dictionaryResponseXML => {
@@ -130,11 +153,28 @@ export default class App extends React.Component {
   //************** Adding to Dictionary **************
 
   //controller to add to dictionary JSON store
+  //search localStorage first
+  //************** For Future Refactor **************
+  /*
+  Send Axios call for GET and POST to server end point
+  Server will send request to API ex.
+  axios.post('/post', thingToPost
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  //then most of the functionality here will move to the server
+  *****************************/
   addToDictionary (e) {
     e.preventDefault();
+    //Save DOM elements in state -- do no access via document.getElementById
     let searchInput = document.getElementById('searchedWord');
     let definitionTextbox = document.getElementById('add-def');
     let addButton = document.getElementById('add-to-dic');
+    
     //if the user tries to add a word to the dictionary with no definition, display error message
     if(definitionTextbox.value == '') {
       console.log('null', this.state.userSuccess)
@@ -194,6 +234,7 @@ export default class App extends React.Component {
   //************** Toggle Displays **************
 
   //after successful definition retrieval this will turn off definition box
+  //Save DOM elements in state -- do no access via document.getElementById
   toggleDefinitionDisplayOff (e) {
     let searchInput = document.getElementById('searchedWord');
     let definitionTextbox = document.getElementById('add-def');
@@ -281,7 +322,6 @@ export default class App extends React.Component {
     this.setState({
       messageDisplay:false
     })
-    
   }
   //currently not rendering Speech to text component
   speechToText (e) {
@@ -289,6 +329,14 @@ export default class App extends React.Component {
     console.log('enabling speech');
     Speech.start();
   }
+
+  //******************* Future onChange function ****************
+  //updateSearch (e) {
+  //   this.setState({
+  //     searchValue: e.target.value
+  //   });
+  // }
+
 
   render () {
 
@@ -306,10 +354,28 @@ export default class App extends React.Component {
     return (
       <div>
         <Header date={this.state.date}/>
-        <Message message={this.state.messageToDisplay} style={messStyle} userSuccess={this.state.userSuccess} close={this.closeMessage.bind(this)} />
-        <Search speech={this.speechToText.bind(this)}toggleAddDisplay={this.toggleAddDisplay.bind(this)} searchWord={this.searchDictionary.bind(this)} />
-        <Definition style={defStyle} word={this.state.word} definition={this.state.definition} toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} />
-        <AddToDictionary style={addStyle} toggleAddDisplay={this.toggleAddDisplay.bind(this)} addToDictionary = {this.addToDictionary.bind(this)} />
+        <Message 
+          close={this.closeMessage.bind(this)} 
+          message={this.state.messageToDisplay} 
+          style={messStyle} 
+          userSuccess={this.state.userSuccess} 
+        />
+        <Search 
+          speech={this.speechToText.bind(this)}
+          toggleAddDisplay={this.toggleAddDisplay.bind(this)} 
+          searchWord={this.searchDictionary.bind(this)} 
+        />
+        <Definition 
+          style={defStyle} 
+          word={this.state.word} 
+          definition={this.state.definition} 
+          toggleDefinitionDisplayOff={this.toggleDefinitionDisplayOff.bind(this)} 
+        />
+        <AddToDictionary 
+          style={addStyle} 
+          toggleAddDisplay={this.toggleAddDisplay.bind(this)} 
+          addToDictionary = {this.addToDictionary.bind(this)} 
+        />
       </div>
     )
   }
